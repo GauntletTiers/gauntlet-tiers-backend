@@ -6,142 +6,188 @@
   <title>Tournaments — Gauntlet Tiers</title>
   <link rel="stylesheet" href="../css/style.css" />
   <style>
+    .t-page { padding: 2rem; max-width: 1050px; margin: 0 auto; }
+
     /* ── CREATE FORM ── */
-    .create-tournament-form {
+    .create-form {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 1.75rem;
       margin-bottom: 2rem;
       display: none;
+      animation: fadeSlideUp 0.3s ease both;
     }
-    .create-tournament-form.open { display: block; }
-    .create-tournament-form h3 {
+    .create-form.open { display: block; }
+    .create-form h3 {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 1.25rem;
-      padding-bottom: 0.75rem;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
       border-bottom: 1px solid var(--border);
     }
     .form-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1rem; margin-bottom: 1rem;
     }
     .form-row .form-group { margin-bottom: 0; }
 
-    /* ── BRACKET ── */
-    .bracket-toggle {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      transition: color 0.15s;
-    }
-    .bracket-toggle:hover { color: var(--accent-gold); }
-
-    .bracket-wrapper {
-      display: none;
-      overflow-x: auto;
-      padding: 1.25rem 1.5rem 1.5rem;
-      border-top: 1px solid var(--border);
-    }
-    .bracket-wrapper.open { display: block; }
-
-    .bracket-inner {
-      display: flex;
-      gap: 1.5rem;
-      min-width: max-content;
-    }
-
-    .bracket-round {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      min-width: 180px;
-    }
-
-    .bracket-round-label {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .bracket-matches {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      flex: 1;
-      gap: 0.75rem;
-    }
-
-    .bracket-match {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-      transition: border-color 0.15s;
-    }
-    .bracket-match:hover { border-color: var(--border-accent); }
-
-    .bracket-player {
-      padding: 0.45rem 0.75rem;
-      font-size: 0.82rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-secondary);
-      transition: background 0.15s;
-    }
-    .bracket-player:last-child { border-bottom: none; }
-    .bracket-player.winner {
-      color: var(--accent-gold);
-      font-weight: 600;
-      background: rgba(212,160,23,0.05);
-    }
-    .bracket-player.tbd { color: var(--text-muted); font-style: italic; font-size: 0.78rem; }
-    .bracket-score {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      min-width: 16px;
-      text-align: right;
-    }
-    .bracket-score.win { color: var(--accent-gold); }
-
-    /* ── EMPTY / FILTER ── */
+    /* ── FILTER BAR ── */
     .filter-bar {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      align-items: center;
+      display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;
     }
     .filter-bar span {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-right: 0.25rem;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.72rem;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-muted); margin-right: 0.25rem;
+    }
+
+    /* ── TOURNAMENT CARD ── */
+    .t-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .t-card:hover { border-color: var(--border-accent); }
+
+    .t-card-header {
+      padding: 1.1rem 1.5rem;
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .t-card-header h3 {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+    }
+    .t-card-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+    .t-status {
+      font-family: 'Rajdhani', sans-serif; font-size: 0.7rem;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 0.22rem 0.65rem; border-radius: 3px;
+    }
+    .s-upcoming { background: rgba(52,152,219,0.12); border: 1px solid rgba(52,152,219,0.3); color: #3498db; }
+    .s-ongoing  { background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.3); color: #2ecc71; }
+    .s-finished { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-muted); }
+
+    .t-card-meta {
+      padding: 1rem 1.5rem;
+      display: flex; gap: 2rem; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+    .t-meta-item { display: flex; flex-direction: column; gap: 0.2rem; }
+    .t-meta-label {
+      font-family: 'Rajdhani', sans-serif; font-size: 0.68rem;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+    }
+    .t-meta-value { font-size: 0.88rem; color: var(--text-primary); font-weight: 600; }
+
+    /* ── PLAYERS PANEL ── */
+    .t-players-panel {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .t-players-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 0.75rem;
+    }
+    .t-players-title {
+      font-family: 'Rajdhani', sans-serif; font-size: 0.72rem;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+    }
+    .t-add-row {
+      display: flex; gap: 0.5rem; margin-bottom: 0.75rem;
+    }
+    .t-add-row input {
+      flex: 1; background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: 4px; padding: 0.45rem 0.75rem;
+      color: var(--text-primary); font-family: 'Exo 2', sans-serif; font-size: 0.85rem; outline: none;
+    }
+    .t-add-row input:focus { border-color: var(--accent-gold); }
+
+    .t-players-list {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+    }
+    .t-player-chip {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: 4px; padding: 0.25rem 0.6rem;
+      font-size: 0.82rem; color: var(--text-primary);
+    }
+    .t-player-chip .remove-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 0.9rem; line-height: 1;
+      padding: 0; transition: color 0.15s;
+    }
+    .t-player-chip .remove-btn:hover { color: var(--accent-red); }
+
+    /* ── BRACKET ── */
+    .t-bracket-toggle-bar {
+      padding: 0.7rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .t-bracket-toggle {
+      font-family: 'Rajdhani', sans-serif; font-size: 0.72rem;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-muted); background: transparent; border: none;
+      cursor: pointer; padding: 0; transition: color 0.15s;
+    }
+    .t-bracket-toggle:hover { color: var(--accent-gold); }
+
+    .t-bracket-wrap {
+      display: none; overflow-x: auto;
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+    .t-bracket-wrap.open { display: block; }
+
+    .t-bracket-inner {
+      display: flex; gap: 1.25rem; min-width: max-content; align-items: flex-start;
+    }
+
+    .b-round { display: flex; flex-direction: column; min-width: 170px; }
+    .b-round-label {
+      font-family: 'Rajdhani', sans-serif; font-size: 0.68rem;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 0.6rem;
+    }
+    .b-matches { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .b-match {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    }
+    .b-match.bye-match { opacity: 0.5; }
+
+    .b-player {
+      padding: 0.4rem 0.7rem;
+      font-size: 0.82rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .b-player:last-child { border-bottom: none; }
+    .b-player.winner { color: var(--accent-gold); font-weight: 600; background: rgba(212,160,23,0.06); }
+    .b-player.bye    { color: var(--text-muted); font-style: italic; font-size: 0.75rem; }
+    .b-player.tbd    { color: var(--text-muted); font-style: italic; font-size: 0.78rem; }
+
+    .b-bye-label {
+      font-family: 'Rajdhani', sans-serif; font-size: 0.6rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--accent-gold); opacity: 0.7;
+    }
+
+    /* ── EMPTY ── */
+    .t-empty {
+      text-align: center; padding: 4rem 2rem; color: var(--text-muted);
+    }
+    .t-empty strong {
+      display: block; font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem; letter-spacing: 1px; margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -174,24 +220,21 @@
     <p>Competitive events across all PvP game modes</p>
   </div>
 
-  <div class="tournaments-page">
+  <div class="t-page">
 
-    <!-- Admin: create tournament button -->
+    <!-- Admin bar -->
     <div id="admin-bar" style="display:none;margin-bottom:1.25rem;">
-      <button class="btn-primary" id="toggle-create-btn" onclick="toggleCreateForm()">
-        + Create Tournament
-      </button>
+      <button class="btn-primary" id="toggle-create-btn">+ Create Tournament</button>
     </div>
 
-    <!-- Create tournament form (admin only) -->
-    <div class="create-tournament-form" id="create-form">
+    <!-- Create form -->
+    <div class="create-form" id="create-form">
       <h3>New Tournament</h3>
       <div class="alert error" id="create-error"></div>
-
       <div class="form-row">
         <div class="form-group">
-          <label>Tournament Name</label>
-          <input type="text" id="t-name" placeholder="e.g. GT Sword Open #1" />
+          <label>Name</label>
+          <input type="text" id="t-name" placeholder="GT Sword Open #1" />
         </div>
         <div class="form-group">
           <label>Game Mode</label>
@@ -211,15 +254,6 @@
           <input type="date" id="t-date" />
         </div>
         <div class="form-group">
-          <label>Max Players</label>
-          <select id="t-size">
-            <option value="4">4</option>
-            <option value="8" selected>8</option>
-            <option value="16">16</option>
-            <option value="32">32</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label>Status</label>
           <select id="t-status">
             <option value="upcoming">Upcoming</option>
@@ -228,20 +262,13 @@
           </select>
         </div>
       </div>
-
       <div class="form-group">
         <label>Description (optional)</label>
         <textarea id="t-desc" placeholder="Prize, rules, format..."></textarea>
       </div>
-
-      <div class="form-group">
-        <label>Players (one per line, in bracket order)</label>
-        <textarea id="t-players" placeholder="Player1&#10;Player2&#10;Player3&#10;Player4" style="min-height:120px;"></textarea>
-      </div>
-
       <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
-        <button class="btn-primary" id="create-btn" onclick="createTournament()">Create Tournament</button>
-        <button class="btn-ghost" onclick="toggleCreateForm()">Cancel</button>
+        <button class="btn-primary" id="create-btn">Create Tournament</button>
+        <button class="btn-ghost" id="cancel-create-btn">Cancel</button>
       </div>
     </div>
 
@@ -254,10 +281,8 @@
       <button class="mode-tab" data-filter="finished">Finished</button>
     </div>
 
-    <!-- Tournament list -->
-    <div id="tournament-list">
-      <!-- skeleton -->
-    </div>
+    <!-- List -->
+    <div id="t-list"></div>
 
   </div>
 </main>
@@ -280,307 +305,364 @@
 <script>
   let allTournaments = [];
   let currentFilter  = 'all';
+  let isAdmin        = false;
 
-  function esc(str) {
+  function esc(s) {
     const d = document.createElement('div');
-    d.appendChild(document.createTextNode(String(str || '')));
+    d.appendChild(document.createTextNode(String(s || '')));
     return d.innerHTML;
   }
 
   // ── Init ───────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     const user = getUser();
-    if (user && user.is_admin) {
-      document.getElementById('admin-bar').style.display = 'block';
-    }
+    isAdmin = !!(user && user.is_admin);
+    if (isAdmin) document.getElementById('admin-bar').style.display = 'block';
 
-    // Filter tabs
+    document.getElementById('toggle-create-btn').onclick = () => toggleForm(true);
+    document.getElementById('cancel-create-btn').onclick = () => toggleForm(false);
+    document.getElementById('create-btn').onclick = createTournament;
+
     document.querySelectorAll('[data-filter]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
-        renderTournaments();
+        renderList();
       });
     });
 
-    loadTournaments();
+    load();
   });
 
-  // ── Toggle create form ──────────────────────────────────
-  function toggleCreateForm() {
-    const form = document.getElementById('create-form');
-    const btn  = document.getElementById('toggle-create-btn');
-    const open = form.classList.toggle('open');
-    btn.textContent = open ? '✕ Cancel' : '+ Create Tournament';
+  function toggleForm(open) {
+    document.getElementById('create-form').classList.toggle('open', open);
+    document.getElementById('toggle-create-btn').textContent = open ? '✕ Cancel' : '+ Create Tournament';
   }
 
-  // ── Load tournaments ────────────────────────────────────
-  async function loadTournaments() {
-    const list = document.getElementById('tournament-list');
-    list.innerHTML = skeleton.tournamentCards(3);
-
+  // ── Load ───────────────────────────────────────────────
+  async function load() {
+    document.getElementById('t-list').innerHTML = skeleton.tournamentCards(3);
     try {
       const data = await apiFetch('/tournaments');
       allTournaments = data.tournaments || [];
-      renderTournaments();
     } catch(e) {
-      // If backend not connected yet, show demo data
-      allTournaments = getDemoTournaments();
-      renderTournaments();
+      allTournaments = demoData();
     }
+    renderList();
   }
 
-  // ── Render tournament cards ─────────────────────────────
-  function renderTournaments() {
-    const list = document.getElementById('tournament-list');
-    let filtered = allTournaments;
+  // ── Render list ────────────────────────────────────────
+  function renderList() {
+    const list = document.getElementById('t-list');
+    let items  = allTournaments;
+    if (currentFilter !== 'all') items = items.filter(t => t.status === currentFilter);
 
-    if (currentFilter !== 'all') {
-      filtered = allTournaments.filter(t => t.status === currentFilter);
-    }
-
-    if (!filtered.length) {
-      list.innerHTML = `
-        <div class="empty-state" style="padding:4rem 2rem;text-align:center;">
-          <strong style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;letter-spacing:1px;">
-            No ${currentFilter === 'all' ? '' : currentFilter} tournaments yet
-          </strong>
-          <p style="margin-top:0.5rem;">Check back soon or join our Discord for announcements.</p>
-        </div>`;
+    if (!items.length) {
+      list.innerHTML = `<div class="t-empty"><strong>No ${currentFilter === 'all' ? '' : currentFilter + ' '}tournaments yet</strong><p>Check back soon or join our Discord.</p></div>`;
       return;
     }
-
-    list.innerHTML = filtered.map((t, i) => buildTournamentCard(t, i)).join('');
+    list.innerHTML = items.map((t, i) => renderCard(t, i)).join('');
   }
 
-  // ── Build a tournament card ─────────────────────────────
-  function buildTournamentCard(t, i) {
-    const statusClass = { upcoming:'status-upcoming', ongoing:'status-ongoing', finished:'status-finished' };
+  // ── Render one card ────────────────────────────────────
+  function renderCard(t, i) {
+    const statusClass = { upcoming:'s-upcoming', ongoing:'s-ongoing', finished:'s-finished' };
     const statusLabel = { upcoming:'Upcoming', ongoing:'Ongoing', finished:'Finished' };
-    const dateStr = t.date ? new Date(t.date).toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' }) : 'TBA';
+    const dateStr = t.date
+      ? new Date(t.date).toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' })
+      : 'TBA';
+    const players = t.players || [];
+    const bracket = t.bracket || buildBracketClient(players);
+    const roundNames = getRoundNames(bracket.length);
 
-    const bracketHtml = buildBracket(t);
+    const adminActions = isAdmin ? `
+      <select onchange="changeStatus('${t.id}', this.value)" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);padding:0.25rem 0.5rem;font-size:0.78rem;font-family:'Exo 2',sans-serif;">
+        <option value="upcoming" ${t.status==='upcoming'?'selected':''}>Upcoming</option>
+        <option value="ongoing"  ${t.status==='ongoing' ?'selected':''}>Ongoing</option>
+        <option value="finished" ${t.status==='finished'?'selected':''}>Finished</option>
+      </select>
+      <button class="btn-danger" style="padding:0.25rem 0.65rem;font-size:0.72rem;" onclick="deleteTournament('${t.id}')">Delete</button>
+    ` : '';
 
-    const user = getUser();
-    const isAdmin = user && user.is_admin;
+    const playersPanel = isAdmin ? `
+      <div class="t-players-panel">
+        <div class="t-players-header">
+          <span class="t-players-title">Players (${players.length})</span>
+        </div>
+        <div class="t-add-row">
+          <input type="text" id="add-input-${t.id}" placeholder="Add player username..." onkeydown="if(event.key==='Enter') addPlayer('${t.id}')" />
+          <button class="btn-primary" style="padding:0.45rem 1rem;white-space:nowrap;" onclick="addPlayer('${t.id}')">Add</button>
+        </div>
+        <div class="t-players-list" id="chips-${t.id}">
+          ${players.map(p => playerChip(t.id, p)).join('')}
+          ${players.length === 0 ? '<span style="color:var(--text-muted);font-size:0.82rem;">No players yet.</span>' : ''}
+        </div>
+      </div>
+    ` : `
+      <div class="t-players-panel">
+        <div class="t-players-header">
+          <span class="t-players-title">Players (${players.length})</span>
+        </div>
+        <div class="t-players-list">
+          ${players.map(p => `<span class="t-player-chip">${esc(p)}</span>`).join('')}
+          ${players.length === 0 ? '<span style="color:var(--text-muted);font-size:0.82rem;">No players registered yet.</span>' : ''}
+        </div>
+      </div>
+    `;
+
+    const bracketHtml = bracket.length > 0 ? `
+      <div class="t-bracket-toggle-bar">
+        <button class="t-bracket-toggle" onclick="toggleBracket(this)">▼ View Bracket</button>
+      </div>
+      <div class="t-bracket-wrap">
+        <div class="t-bracket-inner">
+          ${bracket.map((round, ri) => `
+            <div class="b-round">
+              <div class="b-round-label">${roundNames[ri] || 'Round ' + (ri+1)}</div>
+              <div class="b-matches">
+                ${round.map(m => renderMatch(m)).join('')}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    ` : '';
 
     return `
-      <div class="tournament-card" style="animation:fadeSlideUp 0.45s ease ${i * 0.07}s both;">
-        <div class="tournament-card-header">
+      <div class="t-card" id="tcard-${t.id}" style="animation:fadeSlideUp 0.4s ease ${i*0.06}s both;">
+        <div class="t-card-header">
           <h3>${esc(t.name)}</h3>
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <span class="tournament-status ${statusClass[t.status] || 'status-upcoming'}">
-              ${statusLabel[t.status] || t.status}
-            </span>
-            ${isAdmin ? `
-              <button class="btn-ghost" style="padding:0.25rem 0.65rem;font-size:0.72rem;"
-                onclick="deleteThisTournament('${t.id}')">Remove</button>
-            ` : ''}
+          <div class="t-card-actions">
+            <span class="t-status ${statusClass[t.status]||'s-upcoming'}">${statusLabel[t.status]||t.status}</span>
+            ${adminActions}
           </div>
         </div>
-
-        <div class="tournament-card-body">
-          <div class="tournament-meta-item">
-            <span class="tournament-meta-label">Mode</span>
-            <span class="tournament-meta-value">${esc(t.mode?.toUpperCase() || '—')}</span>
+        <div class="t-card-meta">
+          <div class="t-meta-item">
+            <span class="t-meta-label">Mode</span>
+            <span class="t-meta-value">${esc((t.mode||'').toUpperCase())}</span>
           </div>
-          <div class="tournament-meta-item">
-            <span class="tournament-meta-label">Date</span>
-            <span class="tournament-meta-value">${dateStr}</span>
+          <div class="t-meta-item">
+            <span class="t-meta-label">Date</span>
+            <span class="t-meta-value">${dateStr}</span>
           </div>
-          <div class="tournament-meta-item">
-            <span class="tournament-meta-label">Players</span>
-            <span class="tournament-meta-value">${(t.players || []).filter(p => p && p !== 'TBD').length} / ${t.max_players || '?'}</span>
+          <div class="t-meta-item">
+            <span class="t-meta-label">Players</span>
+            <span class="t-meta-value">${players.length}</span>
           </div>
           ${t.description ? `
-          <div class="tournament-meta-item" style="flex:1;min-width:200px;">
-            <span class="tournament-meta-label">Info</span>
-            <span class="tournament-meta-value" style="font-weight:400;color:var(--text-secondary);font-size:0.85rem;">${esc(t.description)}</span>
+          <div class="t-meta-item" style="flex:1;min-width:180px;">
+            <span class="t-meta-label">Info</span>
+            <span class="t-meta-value" style="font-weight:400;color:var(--text-secondary);font-size:0.85rem;">${esc(t.description)}</span>
           </div>` : ''}
         </div>
-
-        ${bracketHtml ? `
-        <div style="padding:0.5rem 1.5rem;border-top:1px solid var(--border);">
-          <button class="bracket-toggle" onclick="toggleBracket(this)">▼ View Bracket</button>
-        </div>
-        <div class="bracket-wrapper">
-          <div class="bracket-inner">${bracketHtml}</div>
-        </div>` : ''}
+        ${playersPanel}
+        ${bracketHtml}
       </div>`;
   }
 
-  // ── Build bracket HTML from players array ───────────────
-  function buildBracket(t) {
-    const players = (t.players || []);
-    const size    = t.max_players || players.length;
-    if (!size || size < 2) return '';
-
-    // Pad to next power of 2
-    const slots   = Math.pow(2, Math.ceil(Math.log2(Math.max(size, 2))));
-    const padded  = [...players];
-    while (padded.length < slots) padded.push('TBD');
-
-    // Build rounds
-    const rounds   = [];
-    let current    = padded;
-
-    while (current.length >= 2) {
-      const matches = [];
-      for (let i = 0; i < current.length; i += 2) {
-        matches.push([current[i], current[i + 1]]);
-      }
-      rounds.push(matches);
-      // Next round: winners (stored in bracket data if available)
-      const nextRound = t.results ? t.results[rounds.length - 1] || [] : [];
-      current = matches.map((m, i) => nextRound[i] || 'TBD');
-      if (current.every(p => p === 'TBD') && rounds.length > 1) break;
-    }
-
-    const roundNames = ['Round 1','Quarter-finals','Semi-finals','Final','Winner'];
-    const nameIndex  = Math.max(0, roundNames.length - rounds.length - 1);
-
-    return rounds.map((matches, ri) => {
-      const label = rounds.length === 1 ? 'Final'
-        : roundNames[nameIndex + ri] || `Round ${ri + 1}`;
-
-      return `
-        <div class="bracket-round">
-          <div class="bracket-round-label">${label}</div>
-          <div class="bracket-matches">
-            ${matches.map(([p1, p2]) => {
-              const results = t.results && t.results[ri];
-              const winner  = results ? results[Math.floor(matches.indexOf([p1,p2])/1)] : null;
-
-              const isTbd1 = !p1 || p1 === 'TBD';
-              const isTbd2 = !p2 || p2 === 'TBD';
-
-              return `
-                <div class="bracket-match">
-                  <div class="bracket-player ${isTbd1 ? 'tbd' : ''}">
-                    <span>${isTbd1 ? 'TBD' : esc(p1)}</span>
-                  </div>
-                  <div class="bracket-player ${isTbd2 ? 'tbd' : ''}">
-                    <span>${isTbd2 ? 'TBD' : esc(p2)}</span>
-                  </div>
-                </div>`;
-            }).join('')}
-          </div>
-        </div>`;
-    }).join('');
+  function playerChip(tid, username) {
+    return `
+      <span class="t-player-chip">
+        ${esc(username)}
+        <button class="remove-btn" title="Remove" onclick="removePlayer('${tid}','${esc(username)}')">✕</button>
+      </span>`;
   }
 
-  // ── Toggle bracket visibility ───────────────────────────
+  // ── Render one bracket match ────────────────────────────
+  function renderMatch(m) {
+    const isBye = m.bye;
+    return `
+      <div class="b-match ${isBye ? 'bye-match' : ''}">
+        <div class="b-player ${m.p1 === 'BYE' ? 'bye' : ''} ${m.winner === m.p1 && !isBye ? 'winner' : ''}">
+          <span>${m.p1 === 'BYE' ? 'BYE' : m.p1 === 'TBD' ? '?' : esc(m.p1)}</span>
+          ${isBye && m.winner === m.p1 ? '<span class="b-bye-label">AUTO</span>' : ''}
+        </div>
+        <div class="b-player ${m.p2 === 'BYE' ? 'bye' : ''} ${m.winner === m.p2 && !isBye ? 'winner' : ''}">
+          <span>${m.p2 === 'BYE' ? 'BYE' : m.p2 === 'TBD' ? '?' : esc(m.p2)}</span>
+          ${isBye && m.winner === m.p2 ? '<span class="b-bye-label">AUTO</span>' : ''}
+        </div>
+      </div>`;
+  }
+
+  // ── Round names based on total rounds ──────────────────
+  function getRoundNames(total) {
+    if (total === 1) return ['Final'];
+    if (total === 2) return ['Semi-finals', 'Final'];
+    if (total === 3) return ['Quarter-finals', 'Semi-finals', 'Final'];
+    if (total === 4) return ['Round of 16', 'Quarter-finals', 'Semi-finals', 'Final'];
+    const names = [];
+    for (let i = 0; i < total - 3; i++) names.push(`Round ${i+1}`);
+    return [...names, 'Quarter-finals', 'Semi-finals', 'Final'];
+  }
+
+  // ── Bracket builder (client-side mirror of server) ─────
+  function buildBracketClient(players) {
+    const n = players.length;
+    if (n < 2) return [];
+
+    let slots = 1;
+    while (slots < n) slots *= 2;
+
+    const seeded = [...players];
+    while (seeded.length < slots) seeded.push('BYE');
+
+    const rounds = [];
+    let current  = seeded;
+
+    while (current.length > 1) {
+      const matches   = [];
+      const nextRound = [];
+      for (let i = 0; i < current.length; i += 2) {
+        const p1 = current[i], p2 = current[i+1];
+        if (p2 === 'BYE') {
+          matches.push({ p1, p2:'BYE', winner:p1, bye:true });
+          nextRound.push(p1);
+        } else if (p1 === 'BYE') {
+          matches.push({ p1:'BYE', p2, winner:p2, bye:true });
+          nextRound.push(p2);
+        } else {
+          matches.push({ p1, p2, winner:null, bye:false });
+          nextRound.push('TBD');
+        }
+      }
+      rounds.push(matches);
+      current = nextRound;
+    }
+    return rounds;
+  }
+
+  // ── Toggle bracket ─────────────────────────────────────
   function toggleBracket(btn) {
-    const wrapper = btn.closest('.tournament-card').querySelector('.bracket-wrapper');
-    const open    = wrapper.classList.toggle('open');
+    const wrap = btn.closest('.t-card').querySelector('.t-bracket-wrap');
+    const open = wrap.classList.toggle('open');
     btn.textContent = open ? '▲ Hide Bracket' : '▼ View Bracket';
   }
 
-  // ── Create tournament ───────────────────────────────────
-  async function createTournament() {
-    const name    = document.getElementById('t-name').value.trim();
-    const mode    = document.getElementById('t-mode').value;
-    const date    = document.getElementById('t-date').value;
-    const size    = parseInt(document.getElementById('t-size').value);
-    const status  = document.getElementById('t-status').value;
-    const desc    = document.getElementById('t-desc').value.trim();
-    const rawPlayers = document.getElementById('t-players').value;
+  // ── Add player ─────────────────────────────────────────
+  async function addPlayer(tid) {
+    const input    = document.getElementById(`add-input-${tid}`);
+    const username = input.value.trim();
+    if (!username) return;
 
-    const errEl = document.getElementById('create-error');
-    errEl.classList.remove('show');
-
-    if (!name) {
-      errEl.textContent = 'Tournament name is required.';
-      errEl.classList.add('show');
-      return;
+    input.disabled = true;
+    try {
+      const res = await apiFetch(`/tournaments/${tid}/players/add`, {
+        method: 'PATCH',
+        body: JSON.stringify({ username })
+      });
+      // Update local data
+      const t = allTournaments.find(x => x.id === tid);
+      if (t) { t.players = res.players; t.bracket = res.bracket; }
+      input.value = '';
+      refreshCard(tid);
+      toast.success(`${username} added!`);
+    } catch(e) {
+      toast.error(e.message || 'Could not add player');
+    } finally {
+      input.disabled = false;
+      input.focus();
     }
+  }
 
-    const players = rawPlayers
-      .split('\n')
-      .map(p => p.trim())
-      .filter(p => p.length > 0)
-      .slice(0, size);
+  // ── Remove player ──────────────────────────────────────
+  async function removePlayer(tid, username) {
+    try {
+      const res = await apiFetch(`/tournaments/${tid}/players/remove`, {
+        method: 'PATCH',
+        body: JSON.stringify({ username })
+      });
+      const t = allTournaments.find(x => x.id === tid);
+      if (t) { t.players = res.players; t.bracket = res.bracket; }
+      refreshCard(tid);
+      toast.info(`${username} removed.`);
+    } catch(e) {
+      toast.error(e.message || 'Could not remove player');
+    }
+  }
+
+  // ── Change status ──────────────────────────────────────
+  async function changeStatus(tid, status) {
+    try {
+      await apiFetch(`/tournaments/${tid}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status })
+      });
+      const t = allTournaments.find(x => x.id === tid);
+      if (t) t.status = status;
+      refreshCard(tid);
+      toast.success('Status updated!');
+    } catch(e) {
+      toast.error(e.message || 'Could not update status');
+    }
+  }
+
+  // ── Delete ─────────────────────────────────────────────
+  async function deleteTournament(tid) {
+    if (!confirm('Delete this tournament?')) return;
+    try {
+      await apiFetch(`/tournaments/${tid}`, { method: 'DELETE' });
+      allTournaments = allTournaments.filter(t => t.id !== tid);
+      renderList();
+      toast.success('Tournament deleted.');
+    } catch(e) {
+      toast.error(e.message || 'Could not delete');
+    }
+  }
+
+  // ── Refresh a single card in-place ────────────────────
+  function refreshCard(tid) {
+    const t   = allTournaments.find(x => x.id === tid);
+    const el  = document.getElementById(`tcard-${tid}`);
+    const idx = allTournaments.indexOf(t);
+    if (!t || !el) { renderList(); return; }
+    el.outerHTML = renderCard(t, idx);
+  }
+
+  // ── Create tournament ──────────────────────────────────
+  async function createTournament() {
+    const name   = document.getElementById('t-name').value.trim();
+    const mode   = document.getElementById('t-mode').value;
+    const date   = document.getElementById('t-date').value;
+    const status = document.getElementById('t-status').value;
+    const desc   = document.getElementById('t-desc').value.trim();
+    const errEl  = document.getElementById('create-error');
+
+    errEl.classList.remove('show');
+    if (!name) { errEl.textContent = 'Name is required.'; errEl.classList.add('show'); return; }
 
     const btn = document.getElementById('create-btn');
     btn.disabled = true;
     btn.innerHTML = 'Creating… <span class="spinner"></span>';
 
     try {
-      await apiFetch('/tournaments', {
+      const res = await apiFetch('/tournaments', {
         method: 'POST',
-        body: JSON.stringify({ name, mode, date, max_players: size, status, description: desc, players })
+        body: JSON.stringify({ name, mode, date, status, description: desc, players: [] })
       });
-      toast.success(`Tournament "${name}" created!`);
-      toggleCreateForm();
-      // Reset form
-      ['t-name','t-desc','t-players'].forEach(id => document.getElementById(id).value = '');
-      loadTournaments();
+      allTournaments.unshift(res.tournament);
+      toggleForm(false);
+      ['t-name','t-desc'].forEach(id => document.getElementById(id).value = '');
+      renderList();
+      toast.success(`"${name}" created!`);
     } catch(e) {
-      // If backend not connected, add locally for demo
-      const newT = {
-        id: Date.now().toString(),
-        name, mode, date, max_players: size, status, description: desc, players
-      };
-      allTournaments.unshift(newT);
-      toast.success(`Tournament "${name}" created! (local preview)`);
-      toggleCreateForm();
-      renderTournaments();
+      errEl.textContent = e.message || 'Failed to create tournament.';
+      errEl.classList.add('show');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Create Tournament';
     }
   }
 
-  // ── Delete tournament ───────────────────────────────────
-  async function deleteThisTournament(id) {
-    if (!confirm('Remove this tournament?')) return;
-    try {
-      await apiFetch('/tournaments/' + id, { method: 'DELETE' });
-      toast.success('Tournament removed.');
-      loadTournaments();
-    } catch(e) {
-      // Remove locally
-      allTournaments = allTournaments.filter(t => t.id !== id);
-      renderTournaments();
-      toast.info('Removed (local preview).');
-    }
-  }
-
-  // ── Demo data (shown when backend not connected) ────────
-  function getDemoTournaments() {
+  // ── Demo data ──────────────────────────────────────────
+  function demoData() {
+    const p8 = ['RayX2','Shinibi_','misterrxx','Maze','loafxxl','bracedsubset740','ProKnight2014','MillyOnSnuffy'];
+    const p3 = ['RayX2','Shinibi_','misterrxx'];
+    const p2 = ['RayX2','Shinibi_'];
     return [
-      {
-        id: 'demo1',
-        name: 'GT Sword Open #1',
-        mode: 'sword',
-        date: new Date(Date.now() + 7 * 86400000).toISOString(),
-        max_players: 8,
-        status: 'upcoming',
-        description: 'Open tournament for all tiers. Join our Discord to sign up!',
-        players: ['RayX2', 'Shinibi_', 'misterrxx', 'Maze', 'TBD', 'TBD', 'TBD', 'TBD']
-      },
-      {
-        id: 'demo2',
-        name: 'GT Crystal Invitational',
-        mode: 'crystal',
-        date: new Date(Date.now() - 2 * 86400000).toISOString(),
-        max_players: 4,
-        status: 'ongoing',
-        description: 'Invitational for HT1-HT2 players only.',
-        players: ['loafxxl', 'bracedsubset740', 'RayX2', 'Shinibi_']
-      },
-      {
-        id: 'demo3',
-        name: 'GT UHC Season 1',
-        mode: 'uhc',
-        date: new Date(Date.now() - 14 * 86400000).toISOString(),
-        max_players: 8,
-        status: 'finished',
-        description: 'Season 1 concluded. Congratulations to the winner!',
-        players: ['Maze', 'misterrxx', 'loafxxl', 'RayX2', 'Shinibi_', 'bracedsubset740', 'TBD', 'TBD'],
-        results: [['Maze','loafxxl','RayX2','Shinibi_'],['Maze','RayX2'],['Maze']]
-      }
+      { id:'d1', name:'GT Sword Open #1', mode:'sword', date: new Date(Date.now()+7*864e5).toISOString(), status:'upcoming', description:'Open for all tiers. Sign up on Discord!', players: p8, bracket: buildBracketClient(p8) },
+      { id:'d2', name:'GT Crystal Invitational', mode:'crystal', date: new Date(Date.now()-2*864e5).toISOString(), status:'ongoing', description:'3-player round — one gets a bye.', players: p3, bracket: buildBracketClient(p3) },
+      { id:'d3', name:'GT 1v1 Final', mode:'uhc', date: new Date(Date.now()-14*864e5).toISOString(), status:'finished', description:'Quick 2-player final.', players: p2, bracket: buildBracketClient(p2) },
     ];
   }
 </script>
