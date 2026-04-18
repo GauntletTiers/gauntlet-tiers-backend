@@ -62,9 +62,9 @@
     </div>
 
     <!-- Table -->
-    <div class="tier-table-wrapper">
-      <table>
-        <thead>
+    <div class="tier-table-wrapper" style="overflow-x:auto;">
+      <table id="tier-table" style="min-width:500px;">
+        <thead id="tier-table-head">
           <tr>
             <th>#</th>
             <th>Player</th>
@@ -101,58 +101,110 @@
 <script src="../js/api.js"></script>
 <script>
   const TIERS_ORDER = ['HT1','LT1','HT2','LT2','HT3','LT3','HT4','LT4','HT5','LT5'];
-
+  const MODES = ['sword','axe','uhc','pot','crystal','smp'];
   let currentMode = 'overall';
 
-  function renderTable(players) {
-    const tbody = document.getElementById('tier-table-body');
-
-    if (!players || players.length === 0) {
-      tbody.innerHTML = `
-        <tr><td colspan="4">
-          <div class="empty-state">
-            <strong style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;letter-spacing:1px;">No players ranked yet</strong>
-            <p>Join our Discord to get ranked!</p>
-          </div>
-        </td></tr>`;
-      return;
-    }
-
-    // Sort by tier order
-    players.sort((a, b) => {
-      const ai = TIERS_ORDER.indexOf(a.tier);
-      const bi = TIERS_ORDER.indexOf(b.tier);
-      return ai - bi;
-    });
-
-    tbody.innerHTML = players.map((p, i) => `
-      <tr>
-        <td class="rank-num">${i + 1}</td>
-        <td class="player-name">${escapeHtml(p.username)}</td>
-        <td><span class="region-badge">${escapeHtml(p.region || 'N/A')}</span></td>
-        <td><span class="tier-badge tier-${p.tier}">${p.tier}</span></td>
-      </tr>
-    `).join('');
-  }
-
-  function escapeHtml(str) {
+  function esc(str) {
     const d = document.createElement('div');
-    d.appendChild(document.createTextNode(str));
+    d.appendChild(document.createTextNode(String(str || '')));
     return d.innerHTML;
   }
 
   async function loadTierList(mode) {
     const tbody = document.getElementById('tier-table-body');
-    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>`;
+    const thead = document.getElementById('tier-table-head');
+    const cols  = mode === 'overall' ? MODES.length + 3 : 4;
+
+    tbody.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>`;
+
     try {
-      const data = await getPlayers(mode);
-      renderTable(data.players || data);
-    } catch (e) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Could not load rankings.</strong><p>Connect your backend to display players.</p></div></td></tr>`;
+      if (mode === 'overall') {
+        // Header with one column per mode
+        thead.innerHTML = `<tr>
+          <th>#</th><th>Player</th><th>Region</th>
+          ${MODES.map(m => `<th>${m.toUpperCase()}</th>`).join('')}
+        </tr>`;
+
+        // Fetch all 6 modes in parallel
+        const results = await Promise.all(
+          MODES.map(m => getPlayers(m).catch(() => ({ players: [] })))
+        );
+
+        // Merge by username
+        const map = {};
+        results.forEach((res, i) => {
+          const m = MODES[i];
+          (res.players || res).forEach(p => {
+            if (!map[p.username]) map[p.username] = { region: p.region, tiers: {} };
+            map[p.username].tiers[m] = p.tier;
+          });
+        });
+
+        const players = Object.entries(map);
+
+        if (!players.length) {
+          tbody.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state">
+            <strong style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;">No players ranked yet</strong>
+            <p>Join our Discord to get ranked!</p>
+          </div></td></tr>`;
+          return;
+        }
+
+        // Sort by best tier across all modes
+        players.sort((a, b) => {
+          const bestA = Math.min(...Object.values(a[1].tiers).map(t => TIERS_ORDER.indexOf(t)));
+          const bestB = Math.min(...Object.values(b[1].tiers).map(t => TIERS_ORDER.indexOf(t)));
+          return bestA - bestB;
+        });
+
+        tbody.innerHTML = players.map(([username, data], i) => `
+          <tr>
+            <td class="rank-num">${i + 1}</td>
+            <td class="player-name">${esc(username)}</td>
+            <td><span class="region-badge">${esc(data.region || 'N/A')}</span></td>
+            ${MODES.map(m => `
+              <td>
+                ${data.tiers[m]
+                  ? `<span class="tier-badge tier-${data.tiers[m]}">${data.tiers[m]}</span>`
+                  : `<span style="color:var(--text-muted);font-size:0.78rem;">—</span>`
+                }
+              </td>`).join('')}
+          </tr>`).join('');
+
+      } else {
+        // Single mode — standard table
+        thead.innerHTML = `<tr><th>#</th><th>Player</th><th>Region</th><th>Tier</th></tr>`;
+
+        const data = await getPlayers(mode);
+        const players = (data.players || data).sort((a, b) =>
+          TIERS_ORDER.indexOf(a.tier) - TIERS_ORDER.indexOf(b.tier)
+        );
+
+        if (!players.length) {
+          tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">
+            <strong style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;">No players ranked yet</strong>
+            <p>Join our Discord to get ranked!</p>
+          </div></td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = players.map((p, i) => `
+          <tr>
+            <td class="rank-num">${i + 1}</td>
+            <td class="player-name">${esc(p.username)}</td>
+            <td><span class="region-badge">${esc(p.region || 'N/A')}</span></td>
+            <td><span class="tier-badge tier-${p.tier}">${p.tier}</span></td>
+          </tr>`).join('');
+      }
+
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state">
+        <strong style="font-family:'Rajdhani',sans-serif;">Could not load rankings.</strong>
+        <p>Connect your backend to display players.</p>
+      </div></td></tr>`;
     }
   }
 
-  // Tab switching
   document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
