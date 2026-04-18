@@ -40,6 +40,7 @@
     <div class="mode-tabs">
       <button class="mode-tab active" data-mode="overall">Overall</button>
       <button class="mode-tab" data-mode="sword">Sword</button>
+      <button class="mode-tab" data-mode="mace">Mace</button>
       <button class="mode-tab" data-mode="axe">Axe</button>
       <button class="mode-tab" data-mode="uhc">UHC</button>
       <button class="mode-tab" data-mode="pot">Pot</button>
@@ -101,7 +102,7 @@
 <script src="../js/api.js"></script>
 <script>
   const TIERS_ORDER = ['HT1','LT1','HT2','LT2','HT3','LT3','HT4','LT4','HT5','LT5'];
-  const MODES = ['sword','axe','uhc','pot','crystal','smp'];
+  const MODES = ['sword','mace','axe','uhc','pot','crystal','smp'];
   let currentMode = 'overall';
 
   function esc(str) {

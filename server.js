@@ -128,7 +128,7 @@ app.get('/api/stats', async (req, res) => {
     supabase.from('player_tiers').select('*', { count: 'exact', head: true }),
     supabase.from('users').select('*', { count: 'exact', head: true })
   ]);
-  res.json({ ranked_players: players, total_users: users, game_modes: 6 });
+  res.json({ ranked_players: players, total_users: users, game_modes: 7 });
 });
 
 // ── ADMIN: ADD PLAYER ──────────────────────────────────────

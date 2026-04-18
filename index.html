@@ -88,7 +88,7 @@
       <div class="feature-card">
         <div class="feature-icon">🎮</div>
         <h3>Multiple Modes</h3>
-        <p>Rankings for Sword, Axe, UHC, Pot, Crystal, and SMP PvP — separate tiers for each mode.</p>
+        <p>Rankings for Sword, Mace, Axe, UHC, Pot, Crystal, and SMP PvP — separate tiers for each mode.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🔄</div>
@@ -126,7 +126,7 @@
     try {
       const stats = await getStats();
       document.getElementById('stat-players').textContent = stats.ranked_players ?? 0;
-      document.getElementById('stat-modes').textContent = stats.game_modes ?? 6;
+      document.getElementById('stat-modes').textContent = stats.game_modes ?? 7;
     } catch (e) {
       // API not connected yet — defaults shown
     }
