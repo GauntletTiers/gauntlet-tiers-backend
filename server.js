@@ -99,7 +99,7 @@ app.get('/api/players', async (req, res) => {
   const MODES = ['sword','mace','axe','uhc','pot','crystal','smp','vanilla'];
 
   if (mode === 'overall') {
-    // Fetch all modes and merge by username, keeping best tier
+    // Fetch all modes and merge by username
     const { data, error } = await supabase
       .from('player_tiers')
       .select('id, username, region, tier, mode, tier_rank')
@@ -108,32 +108,38 @@ app.get('/api/players', async (req, res) => {
 
     if (error) return res.status(500).json({ message: error.message });
 
+    // Points per tier — higher = better
+    const TIER_POINTS = {
+      HT1:10, LT1:9, HT2:8, LT2:7,
+      HT3:6,  LT3:5, HT4:4, LT4:3,
+      HT5:2,  LT5:1
+    };
+
     const map = {};
     (data || []).forEach(row => {
+      const pts = TIER_POINTS[row.tier] || 0;
       if (!map[row.username]) {
         map[row.username] = {
           id: row.id,
           username: row.username,
           region: row.region,
-          tier: row.tier,
+          tier: row.tier,       // best tier (for display)
           tier_rank: row.tier_rank,
           mode: 'overall',
-          mode_count: 1
+          total_points: pts
         };
       } else {
-        map[row.username].mode_count++;
+        map[row.username].total_points += pts;
+        // Keep best tier for display
         if (row.tier_rank < map[row.username].tier_rank) {
-          map[row.username].tier = row.tier;
+          map[row.username].tier      = row.tier;
           map[row.username].tier_rank = row.tier_rank;
         }
       }
     });
 
-    // Sort: best tier first, then by number of ranked modes as tiebreaker
-    const players = Object.values(map).sort((a, b) => {
-      if (a.tier_rank !== b.tier_rank) return a.tier_rank - b.tier_rank;
-      return b.mode_count - a.mode_count;
-    });
+    // Sort by total points descending — more points = higher rank
+    const players = Object.values(map).sort((a, b) => b.total_points - a.total_points);
     return res.json({ players });
   }
 
