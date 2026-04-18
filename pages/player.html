@@ -49,8 +49,8 @@
     }
 
     .skin-frame {
-      width: 96px;
-      height: 96px;
+      width: 120px;
+      height: 120px;
       border-radius: 10px;
       border: 2px solid var(--accent-gold);
       overflow: hidden;
@@ -470,40 +470,33 @@
   }
 
   function setSkin(username) {
-    const frame  = document.getElementById('skin-frame');
+    const frame    = document.getElementById('skin-frame');
     const initials = username.slice(0, 2).toUpperCase();
 
-    // Try multiple skin APIs in order
+    // mc-heads is most reliable, then minotar, then crafatar
     const apis = [
-      `https://mineskin.eu/helm/${encodeURIComponent(username)}/96`,
-      `https://mc-heads.net/avatar/${encodeURIComponent(username)}/96`,
-      `https://crafatar.com/avatars/${encodeURIComponent(username)}?size=96&overlay`,
+      'https://mc-heads.net/avatar/' + encodeURIComponent(username) + '/96',
+      'https://minotar.net/helm/' + encodeURIComponent(username) + '/96',
+      'https://crafatar.com/avatars/' + encodeURIComponent(username) + '?size=96&overlay=true',
     ];
 
-    let apiIndex = 0;
+    let idx = 0;
 
     function tryNext() {
-      if (apiIndex >= apis.length) {
-        // All failed — show initials
-        frame.innerHTML = `<span class="skin-initials">${initials}</span>`;
+      if (idx >= apis.length) {
+        frame.innerHTML = '<span class="skin-initials">' + initials + '</span>';
         return;
       }
-      const img = new Image();
-      img.onload = () => {
-        frame.innerHTML = '';
-        frame.appendChild(img);
-      };
-      img.onerror = () => {
-        apiIndex++;
-        tryNext();
-      };
-      img.src = apis[apiIndex];
-      img.alt = username;
-      img.style.width = '100%';
-      img.style.height = '100%';
+      const img           = new Image();
+      img.alt             = username;
+      img.style.width     = '100%';
+      img.style.height    = '100%';
       img.style.objectFit = 'cover';
       img.style.imageRendering = 'pixelated';
-      apiIndex++;
+      img.style.display   = 'block';
+      img.onload  = function() { frame.innerHTML = ''; frame.appendChild(img); };
+      img.onerror = function() { idx++; tryNext(); };
+      img.src     = apis[idx++];
     }
 
     tryNext();

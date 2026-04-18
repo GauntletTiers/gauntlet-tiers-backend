@@ -97,7 +97,7 @@
     const initials = (user.username || user.email || '?').slice(0, 2).toUpperCase();
     const avatarEl = document.getElementById('profile-avatar');
     if (user.username) {
-      avatarEl.innerHTML = `<img class="mc-skin-lg" src="https://mineskin.eu/helm/${encodeURIComponent(user.username)}/80" alt="${user.username}" onerror="this.outerHTML='<div style=\'width:80px;height:80px;border-radius:8px;background:rgba(212,160,23,0.15);border:2px solid var(--accent-gold);display:flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;font-size:1.8rem;font-weight:700;color:var(--accent-gold);\'>${initials}</div>'" />`;
+      avatarEl.innerHTML = `<img class="mc-skin-lg" src="https://mc-heads.net/avatar/${encodeURIComponent(user.username)}/80" alt="${user.username}" onerror="this.outerHTML='<div style=\'width:80px;height:80px;border-radius:8px;background:rgba(212,160,23,0.15);border:2px solid var(--accent-gold);display:flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;font-size:1.8rem;font-weight:700;color:var(--accent-gold);\'>${initials}</div>'" />`;
       avatarEl.style.background = 'none';
       avatarEl.style.border = 'none';
       avatarEl.style.width = 'auto';
