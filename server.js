@@ -117,15 +117,23 @@ app.get('/api/players', async (req, res) => {
           region: row.region,
           tier: row.tier,
           tier_rank: row.tier_rank,
-          mode: 'overall'
+          mode: 'overall',
+          mode_count: 1
         };
-      } else if (row.tier_rank < map[row.username].tier_rank) {
-        map[row.username].tier = row.tier;
-        map[row.username].tier_rank = row.tier_rank;
+      } else {
+        map[row.username].mode_count++;
+        if (row.tier_rank < map[row.username].tier_rank) {
+          map[row.username].tier = row.tier;
+          map[row.username].tier_rank = row.tier_rank;
+        }
       }
     });
 
-    const players = Object.values(map).sort((a, b) => a.tier_rank - b.tier_rank);
+    // Sort: best tier first, then by number of ranked modes as tiebreaker
+    const players = Object.values(map).sort((a, b) => {
+      if (a.tier_rank !== b.tier_rank) return a.tier_rank - b.tier_rank;
+      return b.mode_count - a.mode_count;
+    });
     return res.json({ players });
   }
 
