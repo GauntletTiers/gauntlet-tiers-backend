@@ -204,7 +204,11 @@
 <script src="../js/api.js"></script>
 <script>
   const MODES = ['sword','mace','axe','uhc','pot','crystal','smp','vanilla'];
-  const TIERS = ['HT1','LT1','HT2','LT2','HT3','LT3','HT4','LT4','HT5','LT5'];
+  const TIERS       = ['HT1','LT1','HT2','LT2','HT3','LT3','HT4','LT4','HT5','LT5'];
+  const TIER_POINTS = { HT1:10, LT1:9, HT2:8, LT2:7, HT3:6, LT3:5, HT4:4, LT4:3, HT5:2, LT5:1 };
+  function totalPoints(tiersObj) {
+    return Object.values(tiersObj).reduce((sum, t) => sum + (TIER_POINTS[t] || 0), 0);
+  }
   const TIER_LABELS = {
     HT1:'HT1 — Elite', LT1:'LT1 — Top Tier',
     HT2:'HT2 — High Tier', LT2:'LT2 — Good',
@@ -344,7 +348,8 @@
           });
         });
 
-        const players = Object.entries(map);
+        // Sort by total points descending
+        const players = Object.entries(map).sort((a, b) => totalPoints(b[1].tiers) - totalPoints(a[1].tiers));
         if (!players.length) {
           const cols = MODES.length + 4;
           tbody.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">No players yet. Add one above!</strong></div></td></tr>`;
