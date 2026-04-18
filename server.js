@@ -96,7 +96,40 @@ app.post('/api/auth/login', async (req, res) => {
 // ── GET PLAYERS (public) ───────────────────────────────────
 app.get('/api/players', async (req, res) => {
   const mode = req.query.mode || 'overall';
+  const MODES = ['sword','mace','axe','uhc','pot','crystal','smp'];
 
+  if (mode === 'overall') {
+    // Fetch all modes and merge by username, keeping best tier
+    const { data, error } = await supabase
+      .from('player_tiers')
+      .select('id, username, region, tier, mode, tier_rank')
+      .in('mode', MODES)
+      .order('tier_rank', { ascending: true });
+
+    if (error) return res.status(500).json({ message: error.message });
+
+    const map = {};
+    (data || []).forEach(row => {
+      if (!map[row.username]) {
+        map[row.username] = {
+          id: row.id,
+          username: row.username,
+          region: row.region,
+          tier: row.tier,
+          tier_rank: row.tier_rank,
+          mode: 'overall'
+        };
+      } else if (row.tier_rank < map[row.username].tier_rank) {
+        map[row.username].tier = row.tier;
+        map[row.username].tier_rank = row.tier_rank;
+      }
+    });
+
+    const players = Object.values(map).sort((a, b) => a.tier_rank - b.tier_rank);
+    return res.json({ players });
+  }
+
+  // Single mode
   const { data, error } = await supabase
     .from('player_tiers')
     .select('id, username, region, tier, mode')
