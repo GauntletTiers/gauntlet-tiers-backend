@@ -217,6 +217,39 @@
     .b-player.tbd    { color: var(--text-muted); font-style: italic; font-size: 0.78rem; }
     .b-bye-label { font-family: 'Rajdhani', sans-serif; font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase; color: var(--accent-gold); opacity: 0.7; }
 
+    .b-win-label {
+      font-family: 'Rajdhani', sans-serif; font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--accent-gold); margin-left: auto;
+    }
+
+    .clickable-player {
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+    }
+    .clickable-player:hover {
+      background: rgba(212,160,23,0.1);
+      color: var(--accent-gold) !important;
+    }
+    .clickable-player:hover .b-click-hint { opacity: 1; }
+
+    .b-click-hint {
+      font-size: 0.62rem; color: var(--accent-gold); opacity: 0;
+      transition: opacity 0.15s; margin-left: auto;
+      font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    /* champion banner */
+    .champion-banner {
+      display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+      padding: 0.85rem 1.5rem;
+      background: rgba(212,160,23,0.08); border-top: 1px solid rgba(212,160,23,0.25);
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold);
+    }
+
     /* ── EMPTY ── */
     .t-empty { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
     .t-empty strong { display: block; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; letter-spacing: 1px; margin-bottom: 0.5rem; }
@@ -541,26 +574,37 @@
     ` : '';
 
     // ── Bracket (always visible when ongoing or finished; toggle when upcoming)
+    const canSetResult = isAdmin && isLive;
+
     const bracketHtml = bracket.length > 0 ? `
       <div class="t-bracket-inner">
         ${bracket.map((round, ri) => `
           <div class="b-round">
             <div class="b-round-label">${roundNames[ri] || 'Round '+(ri+1)}</div>
             <div class="b-matches">
-              ${round.map(m => {
+              ${round.map((m, mi) => {
                 const isCurrent = t.current_match && (
                   t.current_match.toLowerCase().includes((m.p1||'').toLowerCase()) ||
                   t.current_match.toLowerCase().includes((m.p2||'').toLowerCase())
                 ) && !m.bye;
+                const canClick = canSetResult && !m.bye && m.p1 !== 'TBD' && m.p2 !== 'TBD' && m.p1 !== 'BYE' && m.p2 !== 'BYE';
+                const p1win = m.winner === m.p1 && !m.bye;
+                const p2win = m.winner === m.p2 && !m.bye;
                 return `
                   <div class="b-match ${isCurrent ? 'current-match' : ''}">
-                    <div class="b-player ${m.p1==='BYE'?'bye':''} ${m.winner===m.p1&&!m.bye?'winner':''}">
+                    <div class="b-player ${m.p1==='BYE'?'bye':''} ${p1win?'winner':''} ${canClick&&!m.winner?'clickable-player':''}"
+                      ${canClick&&!m.winner ? `onclick="setWinner('${t.id}',${ri},${mi},'${esc(m.p1)}')" title="Click to set as winner"` : ''}>
                       <span>${m.p1==='BYE'?'BYE':m.p1==='TBD'?'?':esc(m.p1)}</span>
                       ${m.bye&&m.winner===m.p1?'<span class="b-bye-label">AUTO</span>':''}
+                      ${p1win?'<span class="b-win-label">WIN</span>':''}
+                      ${canClick&&!m.winner?'<span class="b-click-hint">click to win</span>':''}
                     </div>
-                    <div class="b-player ${m.p2==='BYE'?'bye':''} ${m.winner===m.p2&&!m.bye?'winner':''}">
+                    <div class="b-player ${m.p2==='BYE'?'bye':''} ${p2win?'winner':''} ${canClick&&!m.winner?'clickable-player':''}"
+                      ${canClick&&!m.winner ? `onclick="setWinner('${t.id}',${ri},${mi},'${esc(m.p2)}')" title="Click to set as winner"` : ''}>
                       <span>${m.p2==='BYE'?'BYE':m.p2==='TBD'?'?':esc(m.p2)}</span>
                       ${m.bye&&m.winner===m.p2?'<span class="b-bye-label">AUTO</span>':''}
+                      ${p2win?'<span class="b-win-label">WIN</span>':''}
+                      ${canClick&&!m.winner?'<span class="b-click-hint">click to win</span>':''}
                     </div>
                   </div>`;
               }).join('')}
@@ -607,6 +651,7 @@
         ${applySection}
         ${appsPanel}
         ${bracketSection}
+        ${t.champion ? `<div class="champion-banner">🏆 Champion: ${esc(t.champion)}</div>` : ''}
       </div>`;
   }
 
@@ -756,6 +801,28 @@
     if(!t||!el){renderList();return;}
     el.outerHTML=renderCard(t,idx);
     if(t.status==='ongoing'&&t.started_at) startTimer(t);
+  }
+
+  // ── Set match winner (admin) ──────────────────────────
+  async function setWinner(tid, roundIndex, matchIndex, winner) {
+    if (!confirm(`Set "${winner}" as the winner of this match?`)) return;
+    try {
+      const res = await apiFetch(`/tournaments/${tid}/result`, {
+        method: 'PATCH',
+        body: JSON.stringify({ round_index: roundIndex, match_index: matchIndex, winner })
+      });
+      const t = allTournaments.find(x => x.id === tid);
+      if (t) {
+        t.bracket = res.bracket;
+        if (res.champion) {
+          t.champion = res.champion;
+          toast.success(`🏆 ${res.champion} is the champion!`, 6000);
+        } else {
+          toast.success(`${winner} advances to next round!`);
+        }
+      }
+      refreshCard(tid);
+    } catch(e) { toast.error(e.message || 'Could not set result'); }
   }
 
   // ── Demo data ──────────────────────────────────────────
