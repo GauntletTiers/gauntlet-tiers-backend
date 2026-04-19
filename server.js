@@ -495,6 +495,57 @@ function buildBracket(players) {
   return rounds;
 }
 
+// ── TOURNAMENT: SET MATCH RESULT (admin) ─────────────────
+// body: { round_index, match_index, winner }
+app.patch('/api/tournaments/:id/result', auth, adminOnly, async (req, res) => {
+  const { round_index, match_index, winner } = req.body;
+
+  const { data: t, error: tErr } = await supabase
+    .from('tournaments').select('bracket').eq('id', req.params.id).single();
+  if (tErr) return res.status(500).json({ message: tErr.message });
+
+  const bracket = t.bracket || [];
+
+  // Validate round/match indices
+  if (!bracket[round_index] || !bracket[round_index][match_index])
+    return res.status(400).json({ message: 'Invalid round or match index' });
+
+  const match = bracket[round_index][match_index];
+
+  // Set winner on this match
+  match.winner = winner;
+
+  // Advance winner to next round if it exists
+  const nextRound = bracket[round_index + 1];
+  if (nextRound) {
+    // Figure out which slot in next round this match feeds into
+    const nextMatchIndex = Math.floor(match_index / 2);
+    const isFirstPlayer  = match_index % 2 === 0; // even index = p1 slot, odd = p2 slot
+
+    if (nextRound[nextMatchIndex]) {
+      if (isFirstPlayer) {
+        nextRound[nextMatchIndex].p1 = winner;
+      } else {
+        nextRound[nextMatchIndex].p2 = winner;
+      }
+      // Clear winner of next match if it was already set (re-picking)
+      nextRound[nextMatchIndex].winner = null;
+    }
+  }
+
+  // Check if tournament is complete (all matches in last round have winners)
+  const lastRound   = bracket[bracket.length - 1];
+  const champion    = lastRound && lastRound.length === 1 && lastRound[0].winner
+    ? lastRound[0].winner : null;
+
+  const { error } = await supabase.from('tournaments')
+    .update({ bracket, ...(champion ? { champion } : {}) })
+    .eq('id', req.params.id);
+
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ bracket, champion });
+});
+
 // ── PLAYER TIER HISTORY (public) ───────────────────────────
 app.get('/api/players/history', async (req, res) => {
   const { username } = req.query;
